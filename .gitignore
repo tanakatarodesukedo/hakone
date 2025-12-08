@@ -1,0 +1,9 @@
+# ビルド物
+WindowsFormsApp1/bin/
+WindowsFormsApp1/obj/
+
+# Visual Studio 生成ファイル
+.vs/
+
+# パッケージ
+packages/
