@@ -1,6 +1,7 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Data;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -14,6 +15,16 @@ namespace WindowsFormsApp1
         /// DB接続文字列
         /// </summary>
         private string connStr = "User Id=hakone; Password=hakone0719; Data Source=localhost:1521/ORCL;";
+
+        /// <summary>
+        /// 1万m正規表現
+        /// </summary>
+        private readonly string regex10k = @"^(?:[0-5]?\d):[0-5]\d\.\d{2}$";
+
+        /// <summary>
+        /// ハーフ正規表現
+        /// </summary>
+        private readonly string regexHalf = @"^(?:[0-3]):[0-5]\d:[0-5]\d$";
 
         public string Mode { get; set; }     // モード（新規登録："NEW", 編集："EDIT", 削除："DEL"）
 
@@ -59,6 +70,7 @@ namespace WindowsFormsApp1
                     cmbUniversity.Enabled = false;
 
                     btnDelete.Visible = true;
+                    btnHistory.Visible = true;
                 }
             }
         }
@@ -83,6 +95,20 @@ namespace WindowsFormsApp1
             {
                 MessageBox.Show("大学名を選択してください。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 cmbUniversity.Focus();
+                return;
+            }
+
+            if (!Regex.IsMatch(mtbBest10k.Text, regex10k))
+            {
+                MessageBox.Show("1万mのタイムが不正です（mm:ss.xx）。");
+                mtbBest10k.Focus();
+                return;
+            }
+
+            if (!Regex.IsMatch(mtbBestHalf.Text, regexHalf))
+            {
+                MessageBox.Show("ハーフのタイムが不正です（hh:mm:ss）。");
+                mtbBestHalf.Focus();
                 return;
             }
 
@@ -133,6 +159,15 @@ namespace WindowsFormsApp1
             this.Mode = "DEL";
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private void btnHistory_Click(object sender, EventArgs e)
+        {
+            var frm = new PlayerHistoryForm();
+            frm.UnivCode = this.UnivCode;
+            frm.InternalNo = this.InternalNo;
+            frm.PlayerName = this.txtPlayerName.Text;
+            frm.ShowDialog();
         }
     }
 }

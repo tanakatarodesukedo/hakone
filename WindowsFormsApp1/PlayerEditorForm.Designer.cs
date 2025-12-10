@@ -39,6 +39,7 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
+            this.btnHistory = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -152,11 +153,23 @@
             this.btnDelete.Visible = false;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
+            // btnHistory
+            // 
+            this.btnHistory.Location = new System.Drawing.Point(271, 25);
+            this.btnHistory.Name = "btnHistory";
+            this.btnHistory.Size = new System.Drawing.Size(75, 23);
+            this.btnHistory.TabIndex = 11;
+            this.btnHistory.Text = "履歴";
+            this.btnHistory.UseVisualStyleBackColor = true;
+            this.btnHistory.Visible = false;
+            this.btnHistory.Click += new System.EventHandler(this.btnHistory_Click);
+            // 
             // PlayerEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnHistory);
             this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
@@ -189,5 +202,6 @@
         public System.Windows.Forms.MaskedTextBox mtbBestHalf;
         public System.Windows.Forms.ComboBox cmbUniversity;
         private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnHistory;
     }
 }

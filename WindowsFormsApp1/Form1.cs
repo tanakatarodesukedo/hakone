@@ -252,6 +252,13 @@ namespace WindowsFormsApp1
                 VALUES (:univCode, :internalNo, :playerName, :best10k, :bestHalf)
             ";
 
+            string sqlInsertHistory = @"
+                INSERT INTO PLAYER_INFO_HISTORY (HISTORY_ID, UNIV_CODE, INTERNAL_NO, BEST_10K, BEST_HALF,
+                    RECORD_DATE, RECORD_TYPE, UPDATED_BY, REASON)
+                VALUES (PLAYER_INFO_HISTORY_SEQ.NEXTVAL, :univCode, :internalNo, :best10k, :bestHalf,
+                SYSDATE, 'INSERT', 'SYSTEM', '初')
+            ";
+
             using (var con = new OracleConnection(connStr))  // OracleConnectionを使う
             {
                 con.Open();
@@ -276,6 +283,18 @@ namespace WindowsFormsApp1
                                 cmdInsert.Parameters.Add("univCode", OracleDbType.Varchar2).Value = univCode;
                                 cmdInsert.Parameters.Add("internalNo", OracleDbType.Int32).Value = internalNo;
                                 cmdInsert.Parameters.Add("playerName", OracleDbType.Varchar2).Value = playerName;
+                                cmdInsert.Parameters.Add("best10k", OracleDbType.Varchar2).Value = time10000;
+                                cmdInsert.Parameters.Add("bestHalf", OracleDbType.Varchar2).Value = timeHalf;
+
+                                // INSERT 実行
+                                cmdInsert.ExecuteNonQuery();
+                            }
+
+                            // データ挿入
+                            using (var cmdInsert = new OracleCommand(sqlInsertHistory, con))
+                            {
+                                cmdInsert.Parameters.Add("univCode", OracleDbType.Varchar2).Value = univCode;
+                                cmdInsert.Parameters.Add("internalNo", OracleDbType.Int32).Value = internalNo;
                                 cmdInsert.Parameters.Add("best10k", OracleDbType.Varchar2).Value = time10000;
                                 cmdInsert.Parameters.Add("bestHalf", OracleDbType.Varchar2).Value = timeHalf;
 
@@ -366,6 +385,13 @@ namespace WindowsFormsApp1
                     AND INTERNAL_NO = :internalNo
             ";
 
+            string sqlUpdateHistory = @"
+                INSERT INTO PLAYER_INFO_HISTORY (HISTORY_ID, UNIV_CODE, INTERNAL_NO, BEST_10K, BEST_HALF,
+                    RECORD_DATE, RECORD_TYPE, UPDATED_BY, REASON)
+                VALUES (PLAYER_INFO_HISTORY_SEQ.NEXTVAL, :univCode, :internalNo, :best10k, :bestHalf,
+                SYSDATE, 'UPDATE', 'SYSTEM', '自己新')
+            ";
+
             using (var con = new OracleConnection(connStr))
             {
                 con.Open();
@@ -381,6 +407,16 @@ namespace WindowsFormsApp1
                             cmd.Parameters.Add("bestHalf", OracleDbType.Varchar2).Value = timeHalf;
                             cmd.Parameters.Add("univCode", OracleDbType.Varchar2).Value = univCode;
                             cmd.Parameters.Add("internalNo", OracleDbType.Int32).Value = internalNo;
+
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (var cmd = new OracleCommand(sqlUpdateHistory, con))
+                        {
+                            cmd.Parameters.Add("univCode", OracleDbType.Varchar2).Value = univCode;
+                            cmd.Parameters.Add("internalNo", OracleDbType.Int32).Value = internalNo;
+                            cmd.Parameters.Add("best10k", OracleDbType.Varchar2).Value = time10000;
+                            cmd.Parameters.Add("bestHalf", OracleDbType.Varchar2).Value = timeHalf;
 
                             cmd.ExecuteNonQuery();
                         }
@@ -403,7 +439,7 @@ namespace WindowsFormsApp1
         /// <param name="univCode">大学コード</param>
         private void DeletePlayer(int internalNo, string univCode)
         {
-            string sqlUpdate = @"
+            string sqlDelete = @"
                 DELETE FROM PLAYER_INFO
                 WHERE UNIV_CODE   = :univCode
                     AND INTERNAL_NO = :internalNo
@@ -417,7 +453,7 @@ namespace WindowsFormsApp1
                 {
                     try
                     {
-                        using (var cmd = new OracleCommand(sqlUpdate, con))
+                        using (var cmd = new OracleCommand(sqlDelete, con))
                         {
                             cmd.Parameters.Add("univCode", OracleDbType.Varchar2).Value = univCode;
                             cmd.Parameters.Add("internalNo", OracleDbType.Int32).Value = internalNo;
