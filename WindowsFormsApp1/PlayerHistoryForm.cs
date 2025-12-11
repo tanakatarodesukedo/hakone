@@ -1,24 +1,50 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System;
+using System.Configuration;
 using System.Data;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace WindowsFormsApp1
 {
+    /// <summary>
+    /// 履歴表示画面
+    /// </summary>
     public partial class PlayerHistoryForm : Form
     {
+        /// <summary>
+        /// 大学コード
+        /// </summary>
         public string UnivCode { get; set; }
+
+        /// <summary>
+        /// 学内連番
+        /// </summary>
         public int InternalNo { get; set; }
+
+        /// <summary>
+        /// 選手名
+        /// </summary>
         public string PlayerName { get; set; }
 
-        private string connStr = "User Id=hakone; Password=hakone0719; Data Source=localhost:1521/ORCL;";
+        /// <summary>
+        /// DB接続文字列
+        /// </summary>
+        private string connStr = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public PlayerHistoryForm()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 初期表示
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
         private void PlayerHistoryForm_Load(object sender, EventArgs e)
         {
             lblPlayerName.Text = PlayerName + " の記録推移";
@@ -26,6 +52,9 @@ namespace WindowsFormsApp1
             LoadHistory();
         }
 
+        /// <summary>
+        /// 履歴読み込み
+        /// </summary>
         private void LoadHistory()
         {
             string sql = @"
@@ -62,6 +91,10 @@ namespace WindowsFormsApp1
             }
         }
 
+        /// <summary>
+        /// グラフ描画
+        /// </summary>
+        /// <param name="dt">dt</param>
         private void DrawChart(DataTable dt)
         {
             chart1.Series.Clear();
@@ -94,6 +127,11 @@ namespace WindowsFormsApp1
             chart1.ChartAreas[0].AxisY.Title = "秒";
         }
 
+        /// <summary>
+        /// 1万mタイムを秒に変換
+        /// </summary>
+        /// <param name="time">タイム</param>
+        /// <returns>秒</returns>
         private double Parse10k(string time)
         {
             if (string.IsNullOrWhiteSpace(time)) return double.NaN;
@@ -106,6 +144,11 @@ namespace WindowsFormsApp1
             return mm * 60 + ss + xx / 100.0;
         }
 
+        /// <summary>
+        /// ハーフタイムを秒に変換
+        /// </summary>
+        /// <param name="time">タイム</param>
+        /// <returns>秒</returns>
         private double ParseHalf(string time)
         {
             if (string.IsNullOrWhiteSpace(time)) return double.NaN;

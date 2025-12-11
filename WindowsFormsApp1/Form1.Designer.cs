@@ -44,6 +44,8 @@
             this.label6 = new System.Windows.Forms.Label();
             this.mtbBestHalfTo = new System.Windows.Forms.MaskedTextBox();
             this.btnClear = new System.Windows.Forms.Button();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.labelStatus = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPlayers)).BeginInit();
             this.SuspendLayout();
             // 
@@ -103,6 +105,7 @@
             this.dgvPlayers.Location = new System.Drawing.Point(0, 133);
             this.dgvPlayers.Name = "dgvPlayers";
             this.dgvPlayers.ReadOnly = true;
+            this.dgvPlayers.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvPlayers.RowTemplate.Height = 21;
             this.dgvPlayers.Size = new System.Drawing.Size(800, 317);
             this.dgvPlayers.TabIndex = 5;
@@ -206,11 +209,28 @@
             this.btnClear.UseVisualStyleBackColor = true;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(688, 12);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(100, 23);
+            this.progressBar1.TabIndex = 16;
+            // 
+            // labelStatus
+            // 
+            this.labelStatus.AutoSize = true;
+            this.labelStatus.Location = new System.Drawing.Point(686, 41);
+            this.labelStatus.Name = "labelStatus";
+            this.labelStatus.Size = new System.Drawing.Size(0, 12);
+            this.labelStatus.TabIndex = 17;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.labelStatus);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.mtbBestHalfTo);
             this.Controls.Add(this.label6);
@@ -254,6 +274,8 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.MaskedTextBox mtbBestHalfTo;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Label labelStatus;
     }
 }
 

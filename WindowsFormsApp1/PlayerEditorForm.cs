@@ -1,5 +1,6 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System;
+using System.Configuration;
 using System.Data;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -14,7 +15,7 @@ namespace WindowsFormsApp1
         /// <summary>
         /// DB接続文字列
         /// </summary>
-        private string connStr = "User Id=hakone; Password=hakone0719; Data Source=localhost:1521/ORCL;";
+        private string connStr = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
 
         /// <summary>
         /// 1万m正規表現
@@ -141,6 +142,11 @@ namespace WindowsFormsApp1
             this.Close();
         }
 
+        /// <summary>
+        /// 削除ボタン押下
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
         private void btnDelete_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
@@ -161,6 +167,11 @@ namespace WindowsFormsApp1
             this.Close();
         }
 
+        /// <summary>
+        /// 履歴ボタン押下
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
         private void btnHistory_Click(object sender, EventArgs e)
         {
             var frm = new PlayerHistoryForm();

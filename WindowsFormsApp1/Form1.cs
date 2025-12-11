@@ -1,7 +1,10 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System;
+using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -14,7 +17,7 @@ namespace WindowsFormsApp1
         /// <summary>
         /// DB接続文字列
         /// </summary>
-        private readonly string connStr = "User Id=hakone; Password=hakone0719; Data Source=localhost:1521/ORCL;";
+        private readonly string connStr = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
 
         /// <summary>
         /// 1万m正規表現
@@ -26,12 +29,25 @@ namespace WindowsFormsApp1
         /// </summary>
         private readonly string regexHalf = @"^(?:[0-3]):[0-5]\d:[0-5]\d$";
 
+        // BackgroundWorkerを使うために宣言
+        private BackgroundWorker backgroundWorker;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public Form1()
         {
             InitializeComponent();
+
+            // BackgroundWorkerの設定
+            backgroundWorker = new BackgroundWorker();
+            backgroundWorker.WorkerReportsProgress = true; // プログレス報告を有効にする
+            backgroundWorker.WorkerSupportsCancellation = true; // キャンセルをサポートする
+
+            // イベントハンドラの登録
+            backgroundWorker.DoWork += BackgroundWorker_DoWork;
+            backgroundWorker.ProgressChanged += BackgroundWorker_ProgressChanged;
+            backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
         }
 
         /// <summary>
@@ -41,6 +57,8 @@ namespace WindowsFormsApp1
         /// <param name="e">e</param>
         private void Form1_Load(object sender, EventArgs e)
         {
+            SearchPlayers();
+
             using (var conn = new OracleConnection(connStr))
             {
                 conn.Open();
@@ -55,8 +73,6 @@ namespace WindowsFormsApp1
                 cmbUniversity.ValueMember = "UNIV_CODE";
                 cmbUniversity.SelectedIndex = -1;
             }
-
-            SearchPlayers();
         }
 
         /// <summary>
@@ -66,7 +82,61 @@ namespace WindowsFormsApp1
         /// <param name="e">e</param>
         private void btnSearch_Click(object sender, EventArgs e)
         {
+            // プログレスバーをリセット
+            progressBar1.Value = 0;
+            labelStatus.Text = "処理開始中...";
+
+            // BackgroundWorkerの実行
+            if (!backgroundWorker.IsBusy)
+            {
+                backgroundWorker.RunWorkerAsync(); // バックグラウンドで処理開始
+            }
+
             SearchPlayers();
+        }
+
+        // バックグラウンドで処理を行う
+        private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            for (int i = 0; i <= 100; i++)
+            {
+                // キャンセルされた場合に処理を中断
+                if (backgroundWorker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+
+                // プログレスの更新
+                backgroundWorker.ReportProgress(i);
+
+                // 進行状況に応じて遅延を追加（例: 50ミリ秒）
+                Thread.Sleep(50);
+            }
+        }
+
+        // プログレスバーを更新
+        private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar1.Value = e.ProgressPercentage; // プログレスバーに進行状況を反映
+            labelStatus.Text = $"処理中... {e.ProgressPercentage}%"; // ラベルに進行状況を表示
+        }
+
+        // 処理が完了したときの処理
+        private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+            {
+                labelStatus.Text = "処理がキャンセルされました。";
+            }
+            else if (e.Error != null)
+            {
+                labelStatus.Text = "エラーが発生しました: " + e.Error.Message;
+            }
+            else
+            {
+                labelStatus.Text = "処理が完了しました！";
+            }
         }
 
         /// <summary>
@@ -485,6 +555,11 @@ namespace WindowsFormsApp1
             mtbBest10kTo.Clear();
             mtbBestHalfFrom.Clear();
             mtbBestHalfTo.Clear();
+
+            if (backgroundWorker.IsBusy)
+            {
+                backgroundWorker.CancelAsync(); // バックグラウンド処理をキャンセル
+            }
         }
     }
 }
