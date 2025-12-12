@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -32,6 +33,12 @@ namespace WindowsFormsApp1
         // BackgroundWorkerを使うために宣言
         private BackgroundWorker backgroundWorker;
 
+        // 入力ヒント用
+        private ToolTip toolTip1;
+
+        // グリッド右クリックメニュー
+        private ContextMenuStrip dgvMenu;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -39,15 +46,137 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
+            // ToolTip 初期化
+            toolTip1 = new ToolTip();
+            toolTip1.SetToolTip(txtPlayerName, "選手名を入力します");
+            toolTip1.SetToolTip(mtbBest10kFrom, "形式：mm:ss.xx");
+            toolTip1.SetToolTip(mtbBestHalfFrom, "形式：hh:mm:ss");
+
+            // DataGridView に 編集/削除 ボタン追加
+            AddGridButtons();
+
+            // 右クリックメニュー追加
+            SetupRightClickMenu();
+
             // BackgroundWorkerの設定
             backgroundWorker = new BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true; // プログレス報告を有効にする
             backgroundWorker.WorkerSupportsCancellation = true; // キャンセルをサポートする
 
             // イベントハンドラの登録
-            backgroundWorker.DoWork += BackgroundWorker_DoWork;
-            backgroundWorker.ProgressChanged += BackgroundWorker_ProgressChanged;
-            backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
+            backgroundWorker.DoWork += BackgroundWorker_DoWork; // バックグラウンドで実行する処理
+            backgroundWorker.ProgressChanged += BackgroundWorker_ProgressChanged; // プログレス(進捗)更新時の処理
+            backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted; // バックグラウンド処理完了時の処理
+        }
+
+        // =============================
+        // DataGridView ボタン列追加
+        // =============================
+        private void AddGridButtons()
+        {
+            // 編集ボタン
+            var colEdit = new DataGridViewButtonColumn();
+            colEdit.Name = "btnEditRow";
+            colEdit.HeaderText = "編集";
+            colEdit.Text = "編集";
+            colEdit.Width = 60;
+            colEdit.UseColumnTextForButtonValue = true;
+            dgvPlayers.Columns.Add(colEdit);
+
+            // 削除ボタン
+            var colDel = new DataGridViewButtonColumn();
+            colDel.Name = "btnDeleteRow";
+            colDel.HeaderText = "削除";
+            colDel.Text = "削除";
+            colDel.Width = 60;
+            colDel.UseColumnTextForButtonValue = true;
+            dgvPlayers.Columns.Add(colDel);
+
+            dgvPlayers.CellClick += DgvPlayers_CellClick;
+        }
+
+        /// <summary>
+        /// グリッドのセルクリック
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
+        /// <remarks>編集ボタン、削除ボタン押下時の処理</remarks>
+        private void DgvPlayers_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            // 編集
+            if (dgvPlayers.Columns[e.ColumnIndex].Name == "btnEditRow")
+            {
+                dgvPlayers_CellDoubleClick(sender, e);
+            }
+            // 削除
+            else if (dgvPlayers.Columns[e.ColumnIndex].Name == "btnDeleteRow")
+            {
+                var row = dgvPlayers.Rows[e.RowIndex];
+                string univ = row.Cells["UNIV_CODE"].Value.ToString();
+                int no = Convert.ToInt32(row.Cells["INTERNAL_NO"].Value);
+
+                if (MessageBox.Show("削除しますか？", "確認",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    DeletePlayer(no, univ);
+                    SearchPlayers();
+                    toolStripStatusLabel1.Text = "削除完了";
+                }
+            }
+        }
+
+        // =============================
+        // DataGridView 右クリックメニュー
+        // =============================
+        private void SetupRightClickMenu()
+        {
+            dgvMenu = new ContextMenuStrip();
+            dgvMenu.Items.Add("編集", null, (s, e) => EditSelectedRow());
+            dgvMenu.Items.Add("削除", null, (s, e) => DeleteSelectedRow());
+
+            dgvPlayers.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    var hit = dgvPlayers.HitTest(e.X, e.Y);
+                    if (hit.RowIndex >= 0)
+                    {
+                        dgvPlayers.ClearSelection();
+                        dgvPlayers.Rows[hit.RowIndex].Selected = true;
+                        dgvMenu.Show(dgvPlayers, e.Location);
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// 右クリックメニュー：編集
+        /// </summary>
+        private void EditSelectedRow()
+        {
+            int row = dgvPlayers.SelectedRows[0].Index;
+            dgvPlayers_CellDoubleClick(dgvPlayers, new DataGridViewCellEventArgs(0, row));
+        }
+
+        /// <summary>
+        /// 右クリックメニュー：削除
+        /// </summary>
+        private void DeleteSelectedRow()
+        {
+            int row = dgvPlayers.SelectedRows[0].Index;
+
+            string univ = dgvPlayers.Rows[row].Cells["UNIV_CODE"].Value.ToString();
+            int no = Convert.ToInt32(dgvPlayers.Rows[row].Cells["INTERNAL_NO"].Value);
+
+            if (MessageBox.Show("削除しますか？", "確認",
+                MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                DeletePlayer(no, univ);
+                SearchPlayers();
+                toolStripStatusLabel1.Text = "削除しました";
+            }
         }
 
         /// <summary>
@@ -86,13 +215,15 @@ namespace WindowsFormsApp1
             progressBar1.Value = 0;
             labelStatus.Text = "処理開始中...";
 
-            // BackgroundWorkerの実行
+            // BackgroundWorkerの実行（処理中の場合はスルー）
             if (!backgroundWorker.IsBusy)
             {
-                backgroundWorker.RunWorkerAsync(); // バックグラウンドで処理開始
+                backgroundWorker.RunWorkerAsync(); // バックグラウンドで処理開始（DoWorkを実行し、完了したらRunWorkerCompletedを実行）
             }
 
             SearchPlayers();
+
+            toolStripStatusLabel1.Text = dateTimePicker1.Value.ToString("yyyy/MM/dd");
         }
 
         // バックグラウンドで処理を行う
@@ -107,7 +238,7 @@ namespace WindowsFormsApp1
                     break;
                 }
 
-                // プログレスの更新
+                // プログレスの更新（ProgressChangedを実行）
                 backgroundWorker.ReportProgress(i);
 
                 // 進行状況に応じて遅延を追加（例: 50ミリ秒）

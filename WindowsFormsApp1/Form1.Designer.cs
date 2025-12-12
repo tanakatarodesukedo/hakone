@@ -46,7 +46,11 @@
             this.btnClear = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.labelStatus = new System.Windows.Forms.Label();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPlayers)).BeginInit();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmbUniversity
@@ -101,13 +105,12 @@
             this.dgvPlayers.AllowUserToAddRows = false;
             this.dgvPlayers.AllowUserToDeleteRows = false;
             this.dgvPlayers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvPlayers.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.dgvPlayers.Location = new System.Drawing.Point(0, 133);
+            this.dgvPlayers.Location = new System.Drawing.Point(0, 152);
             this.dgvPlayers.Name = "dgvPlayers";
             this.dgvPlayers.ReadOnly = true;
             this.dgvPlayers.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvPlayers.RowTemplate.Height = 21;
-            this.dgvPlayers.Size = new System.Drawing.Size(800, 317);
+            this.dgvPlayers.Size = new System.Drawing.Size(800, 273);
             this.dgvPlayers.TabIndex = 5;
             this.dgvPlayers.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPlayers_CellDoubleClick);
             // 
@@ -224,11 +227,36 @@
             this.labelStatus.Size = new System.Drawing.Size(0, 12);
             this.labelStatus.TabIndex = 17;
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(800, 22);
+            this.statusStrip1.TabIndex = 18;
+            this.statusStrip1.Text = "準備完了";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(55, 17);
+            this.toolStripStatusLabel1.Text = "準備完了";
+            // 
+            // dateTimePicker1
+            // 
+            this.dateTimePicker1.Location = new System.Drawing.Point(79, 107);
+            this.dateTimePicker1.Name = "dateTimePicker1";
+            this.dateTimePicker1.Size = new System.Drawing.Size(200, 19);
+            this.dateTimePicker1.TabIndex = 19;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.dateTimePicker1);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.btnClear);
@@ -251,6 +279,8 @@
             this.Text = "箱根駅伝";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPlayers)).EndInit();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -276,6 +306,9 @@
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label labelStatus;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.DateTimePicker dateTimePicker1;
     }
 }
 
